@@ -7,16 +7,53 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-const geometry = new THREE.BoxGeometry(1, 1, 1);
-const material = new THREE.MeshBasicMaterial({color: 0x00ff00});
-const cube = new THREE.Mesh(geometry, material);
-scene.add(cube);
+class Origami {
+  constructor(width, height) {
+    this.vertices = [
+      -1.0, -1.0, 1.0,
+      1.0, -1.0, 1.0,
+      1.0, 1.0, 1.0,
+      -1.0, 1.0, 1.0,
+    ];
+
+    this.faces = [
+      0, 1, 2,
+      0, 2, 3
+    ];
+
+    this.mesh = this.createMesh();
+  }
+
+  createMesh() {
+    const triangles = [];
+
+    for (let index of this.faces) {
+      triangles.push(...this.vertices.slice(index * 3, index * 3 + 3));
+    }
+
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(triangles), 3));
+
+    const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+    material.side = THREE.DoubleSide;
+    const mesh = new THREE.Mesh(geometry, material);
+
+    return mesh;
+  }
+
+  render() {
+    this.mesh.rotation.x += 0.01;
+    this.mesh.rotation.y += 0.01;
+  }
+}
+
+const origami = new Origami(1, 1);
+scene.add(origami.mesh);
 
 camera.position.z = 5;
 
 function animate() {
-  cube.rotation.x += 0.01;
-  cube.rotation.y += 0.01;
+  origami.render();
 
   renderer.render(scene, camera);
 }
