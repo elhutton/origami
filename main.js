@@ -17,18 +17,30 @@ class Origami {
     ];
 
     this.faces = [
-      0, 1, 2,
-      0, 2, 3
+      [0, 1, 2, 3]
     ];
 
     this.mesh = this.createMesh();
   }
 
+  triangulateFace(face) {
+    const triangles = [];
+
+    for (let i = 1; i < face.length; i++) {
+      triangles.push(face[0], face[i], face[i + 1]);
+    }
+
+    return triangles;
+  }
+
   createMesh() {
     const triangles = [];
 
-    for (let index of this.faces) {
-      triangles.push(...this.vertices.slice(index * 3, index * 3 + 3));
+    for (let face of this.faces) {
+      const triangulated = this.triangulateFace(face);
+      for (let index of triangulated) {
+        triangles.push(...this.vertices.slice(index * 3, index * 3 + 3));
+      }
     }
 
     const geometry = new THREE.BufferGeometry();
