@@ -7,6 +7,33 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
+class Mouse {
+  constructor() {
+    this.x = 0;
+    this.y = 0;
+    this.held = false;
+    this.button = 0;
+  }
+
+  click(event) {
+    this.held = true;
+    this.button = event.button;
+    this.x = event.offsetX;
+    this.y = event.offsetY;
+  }
+
+  move(event) {
+    this.x = event.offsetX;
+    this.y = event.offsetY;
+  }
+
+  release(event) {
+    this.held = false;
+    this.x = event.offsetX;
+    this.y = event.offsetY;
+  }
+}
+
 class Origami {
   constructor(width, height) {
     this.vertices = [
@@ -62,6 +89,8 @@ class Origami {
 const origami = new Origami(1, 1);
 scene.add(origami.mesh);
 
+const mouse = new Mouse();
+
 camera.position.z = 5;
 
 function animate() {
@@ -71,3 +100,15 @@ function animate() {
 }
 
 renderer.setAnimationLoop(animate);
+
+renderer.domElement.addEventListener("mousedown", function(event) {
+  mouse.click(event);
+});
+
+renderer.domElement.addEventListener("mousemove", function (event) {
+  mouse.move(event);
+});
+
+renderer.domElement.addEventListener("mouseup", function (event) {
+  mouse.release(event);
+});
