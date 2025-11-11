@@ -13,24 +13,42 @@ class Mouse {
     this.y = 0;
     this.held = false;
     this.button = 0;
+
+    this.px = 0;
+    this.py = 0;
+  }
+
+  setPosition(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+
+  getChange() {
+    if (!this.held) return [0, 0];
+
+    const dx = this.x - this.px;
+    const dy = this.y - this.py;
+    this.px = this.x;
+    this.py = this.y;
+
+    return [dx, dy];
   }
 
   click(event) {
     this.held = true;
     this.button = event.button;
-    this.x = event.offsetX;
-    this.y = event.offsetY;
+    this.setPosition(event.offsetX, event.offsetY);
+    this.px = event.offsetX;
+    this.py = event.offsetY;
   }
 
   move(event) {
-    this.x = event.offsetX;
-    this.y = event.offsetY;
+    this.setPosition(event.offsetX, event.offsetY);
   }
 
   release(event) {
     this.held = false;
-    this.x = event.offsetX;
-    this.y = event.offsetY;
+    this.setPosition(event.offsetX, event.offsetY);
   }
 }
 
@@ -80,9 +98,10 @@ class Origami {
     return mesh;
   }
 
-  render() {
-    this.mesh.rotation.x += 0.01;
-    this.mesh.rotation.y += 0.01;
+  rotate(dx, dy) {
+    const scale = 0.01;
+    this.mesh.rotation.x += scale * dy;
+    this.mesh.rotation.y += scale * dx;
   }
 }
 
@@ -94,7 +113,8 @@ const mouse = new Mouse();
 camera.position.z = 5;
 
 function animate() {
-  origami.render();
+  const [mdx, mdy] = mouse.getChange();
+  origami.rotate(mdx, mdy);
 
   renderer.render(scene, camera);
 }
