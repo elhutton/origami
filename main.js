@@ -90,7 +90,7 @@ class Origami {
   triangulateFace(face) {
     const triangles = [];
 
-    for (let i = 1; i < face.length; i++) {
+    for (let i = 1; i < face.length - 1; i++) {
       triangles.push(face[0], face[i], face[i + 1]);
     }
 
@@ -117,10 +117,37 @@ class Origami {
     return mesh;
   }
 
+  updateMesh() {
+    const position = this.mesh.geometry.getAttribute('position');
+
+    const triangles = [];
+
+    for (let face of this.faces) {
+      const triangulated = this.triangulateFace(face);
+      for (let index of triangulated) {
+        triangles.push(this.vertices.slice(index * 3, index * 3 + 3));
+      }
+    }
+
+    for (let i = 0; i < triangles.length; i++) {
+      position.setXYZ(i, ...triangles[i]);
+    }
+
+    position.needsUpdate = true;
+  }
+
   rotate(dx, dy) {
     const scale = 0.01;
     this.mesh.rotation.x += scale * dy;
     this.mesh.rotation.y += scale * dx;
+  }
+
+  moveVertex(index, dx, dy, dz) {
+    this.vertices[index * 3] += dx;
+    this.vertices[index * 3 + 1] += dy;
+    this.vertices[index * 3 + 2] += dz;
+
+    this.updateMesh();
   }
 }
 
@@ -134,6 +161,8 @@ camera.position.z = 5;
 function animate() {
   const [mdx, mdy] = mouse.getChange();
   origami.rotate(mdx, mdy);
+
+  origami.moveVertex(0, 0, 0, 0.005);
 
   renderer.render(scene, camera);
 }
