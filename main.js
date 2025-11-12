@@ -62,10 +62,29 @@ class Origami {
     ];
 
     this.faces = [
-      [0, 1, 2, 3]
+      [0, 1, 2],
+      [0, 2, 3]
     ];
 
     this.mesh = this.createMesh();
+  }
+
+  edgeFaces(a, b) {
+    const faces = [];
+
+    for (const face of this.faces) {
+      for (let i = 0; i < face.length; i++) {
+        const start = face[i];
+        const end = i === face.length - 1 ? face[0] : face[i + 1];
+
+        if (start === a && end === b || start === b && end === a) {
+          faces.push(face);
+          break;
+        }
+      }
+    }
+
+    return faces;
   }
 
   triangulateFace(face) {
